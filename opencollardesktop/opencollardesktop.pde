@@ -725,14 +725,17 @@ void customize(DropdownList ddl) {
   int size2 = COMlist.length();
   //Now we can count how many ports there are, well that is count how many chars there are, so we will divide by the amount of chars per port name.
   int size1 = comlist.length() / size2;
+  //println(size1);
   //Now well add the ports to the list, we use a for loop for that. How many items is determined by the value of size1.
-  for(int i=0; i< size1; i++)
+  for(int i=0; i< size1-1; i++)
   {
+    //println(i);
     //This is the line doing the actual adding of items, we use the current loop we are in to determin what place in the char array to access and what item number to add it as.
     ddl.addItem(comList[i],i);
+   // println(comList[i]);
   }
   //Set the color of the background of the items and the bar.
-  ddl.setColorBackground(color(60));
+ // ddl.setColorBackground(color(60));
   //Set the color of the item your mouse is hovering over.
-  ddl.setColorActive(color(255,128));
+ // ddl.setColorActive(color(255,128));
 }
