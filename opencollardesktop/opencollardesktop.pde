@@ -11,7 +11,7 @@ import processing.serial.*;
 int Mode=0; //1: live// 2: read //3: data chargées
 
 Button buttonfwd1,buttonffwd10, buttonfffwd100, buttonrwd1, buttonrrwd10, buttonrrrwd100,buttonzoominx,buttonzoomoutx,buttonzoominy,buttonzoomouty;
-Toggle toggleLiveMode,toggleReadMode,toggleSaveToFile,toggleDrawFromFile;
+Toggle toggleLiveMode,toggleReadMode,toggleSaveToFile,toggleDrawFromFile,toggleAccX,toggleAccY,toggleAccZ,toggleGyroX,toggleGyroY,toggleGyroZ;
 
 Serial myPort;                       // The serial port
 int[] serialInArray = new int[3];    // Where we'll put what we receive                // A count of how many bytes we receive
@@ -40,6 +40,12 @@ int Ss;                          //The dropdown list will return a float value, 
 String[] comList ;               //A string to hold the ports in.
 boolean serialSet=false;               //A value to test if we have setup the Serial port.
 boolean Comselected = false; 
+boolean DisplayAccX = true;
+boolean DisplayAccY = true;
+boolean DisplayAccZ = true;
+boolean DisplayGyroX = true;
+boolean DisplayGyroY = true;
+boolean DisplayGyroZ = true;
 
 void setup() {
   background(200);
@@ -53,6 +59,13 @@ void setup() {
   toggleSaveToFile= controlP5.addToggle("SaveToFile",false,140,500,20,20); toggleSaveToFile.setColorActive(color (0,250,0)); toggleSaveToFile.setColorBackground (color(255, 0, 0));
   toggleDrawFromFile= controlP5.addToggle("DrawFromFile", false,140,550,20,20); toggleDrawFromFile.setColorActive (color (250,0,0)); toggleDrawFromFile.setColorBackground (color(0,0,250));//toggle pour redessiner
   
+  /*toggle enable curves*/
+  toggleAccX= controlP5.addToggle("a",true,10,420,10,10); toggleAccX.setColorActive(color (255,0,0)); toggleAccX.setColorBackground (color(0, 0, 0)); toggleAccX.setLabelVisible(false);
+  toggleAccY= controlP5.addToggle("b",true,10,440,10,10); toggleAccY.setColorActive(color (0,255,0)); toggleAccY.setColorBackground (color(0, 0, 0)); toggleAccY.setLabelVisible(false);
+  toggleAccZ= controlP5.addToggle("c",true,10,460,10,10); toggleAccZ.setColorActive(color (0,0,255)); toggleAccZ.setColorBackground (color(0, 0, 0)); toggleAccZ.setLabelVisible(false);
+  toggleGyroX= controlP5.addToggle("d",true,60,420,10,10); toggleGyroX.setColorActive(color (0,255,255)); toggleGyroX.setColorBackground (color(0, 0, 0)); toggleGyroX.setLabelVisible(false);
+  toggleGyroY= controlP5.addToggle("e",true,60,440,10,10); toggleGyroY.setColorActive(color (0,102,102)); toggleGyroY.setColorBackground (color(0, 0, 0)); toggleGyroY.setLabelVisible(false);
+  toggleGyroZ= controlP5.addToggle("f",true,60,460,10,10); toggleGyroZ.setColorActive(color (102,102,205)); toggleGyroZ.setColorBackground (color(0, 0, 0)); toggleGyroZ.setLabelVisible(false);
   //buttons forward and reward
   buttonfwd1= controlP5.addButton("fwd1",0, 260, 450, 30, 20); buttonfwd1.setColorActive (color(13, 233, 79)); buttonfwd1.setColorBackground (color(153, 102, 255));
   buttonffwd10= controlP5.addButton("ffwd10",0, 260, 500, 40, 20); buttonffwd10.setColorActive (color(46, 210, 62)); buttonffwd10.setColorBackground (color(153, 51, 204));
@@ -139,23 +152,73 @@ void drawgraphLegends()
   {
   // This draws the graph key info
   strokeWeight(1.5);
-  stroke(255, 0, 0);     line(20, 420, 35, 420);//axes legend
-  stroke(0, 255, 0);     line(20, 440, 35, 440);
-  stroke(0, 0, 255);     line(20, 460, 35, 460);
+ // stroke(255, 0, 0);     line(20, 420, 35, 420);//axes legend
+ // stroke(0, 255, 0);     line(20, 440, 35, 440);
+ // stroke(0, 0, 255);     line(20, 460, 35, 460);
   stroke(0, 0, 0);       line(700, 450, 700, 465);//timer legend
   stroke(255, 0, 0);     line(700, 480, 700, 495);
   stroke(0, 0, 255);     line(700, 510, 700, 525);
   stroke(0, 255, 0);     line(700, 540, 700, 555);   
   fill(0, 0, 0);
-  text("xAccel curve", 40, 430);
-  text("yAccel curve", 40, 450);
-  text("zAccel curve", 40, 470);
+  text("xAcc.", 22, 430);
+  text("yAcc.",22, 450);
+  text("zAcc.", 22, 470);
+  text("xGyro.", 72, 430);
+  text("yGyro.",72, 450);
+  text("zGyro.", 72, 470);
   text("1s checkpoint", 704, 460);
   text("10s checkpoint", 704, 490);
   text("1min checkpoint", 704, 520);
   text("5min checkpoint", 704, 550);
   }
-
+void a(boolean theFlag){
+  if(theFlag==true){
+  DisplayAccX=true;
+  }
+  else if(theFlag==false){   
+  DisplayAccX=false;
+  }
+}
+void b(boolean theFlag){
+  if(theFlag==true){
+  DisplayAccY=true;
+  }
+  else if(theFlag==false){   
+  DisplayAccY=false;
+  }
+}
+void c(boolean theFlag){
+  if(theFlag==true){
+  DisplayAccZ=true;
+  }
+  else if(theFlag==false){   
+  DisplayAccZ=false;
+  }
+}
+void d(boolean theFlag){
+  if(theFlag==true){
+  DisplayGyroX=true;
+  }
+  else if(theFlag==false){   
+  DisplayGyroX=false;
+  }
+}
+void e(boolean theFlag){
+  if(theFlag==true){
+  DisplayGyroY=true;
+  }
+  else if(theFlag==false){   
+  DisplayGyroY=false;
+  }
+}
+void f(boolean theFlag){
+  if(theFlag==true){
+  DisplayGyroZ=true;
+  }
+  else if(theFlag==false){   
+  DisplayGyroZ=false;
+  }
+}
 /*
 Modes 
 */
@@ -266,14 +329,12 @@ void draw() {
 //  line (11, 339, 809, 340);
   strokeWeight(1.5);
  // stroke(255, 0, 0);
-  drawXLine();
- // stroke(0, 255, 0);
-  drawYLine();
-  //stroke(0, 0, 255);
-  drawZLine();
-  drawGyroXLine();
-  drawGyroYLine();
-  drawGyroZLine();
+ if(DisplayAccX)  drawXLine();
+ if(DisplayAccY) drawYLine();
+ if(DisplayAccZ) drawZLine();
+ if(DisplayGyroX) drawGyroXLine();
+ if(DisplayGyroY) drawGyroYLine();
+ if(DisplayGyroZ) drawGyroZLine();
  // g_graph.drawLine(1);
  // stroke(0, 0, 255);
  // g_graph.drawLine(2);
