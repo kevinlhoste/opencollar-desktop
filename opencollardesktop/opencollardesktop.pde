@@ -48,6 +48,9 @@ boolean DisplayGyroX = true;
 boolean DisplayGyroY = true;
 boolean DisplayGyroZ = true;
 
+float acc_range=4.0;
+float gyro_range=250.0;
+
 void setup() {
   background(200);
   //size(g_winW, g_winH, P2D);
@@ -228,6 +231,7 @@ void LiveMode(boolean theFlag) {
      //println("livemode toggle");
      myPort = new Serial(this, comList[Ss],comSpeed);
      serialSet = true;
+     myPort.write('A');
      /*
      println(Serial.list());
      String portName = Serial.list()[1];
@@ -236,6 +240,7 @@ void LiveMode(boolean theFlag) {
      } 
    else if(theFlag==false && serialSet==true){
      println("close the port");
+     myPort.write('q');
      myPort.stop();
      Mode=3;
     }
@@ -250,6 +255,7 @@ void ReadMode(boolean theFlag) {
      println("read mode");
      myPort = new Serial(this, comList[Ss],comSpeed);
      serialSet = true;
+      myPort.write('A');
      //myPort = new Serial(this, theport[Ss],comSpeed);
      /*println("a toggle event true");
      println(Serial.list());
@@ -514,14 +520,11 @@ void serialEvent(Serial p) {
     value = float(message);
     if(value<=65535 && value>=-65535){
     println(value);
-    //value = value*0.047;
-   // value = value*(2.0/65535);
-    //println(value);
     //remplir les X
     if(serialCount==0){
    /* print("ax: ");
     println(value);*/
-    value = value*(2.0/65535);
+    value = value*(acc_range/65535);
     dataX[currentPos]=value;
    // println(value);
    // println(serialCount);
@@ -531,7 +534,7 @@ void serialEvent(Serial p) {
     else if(serialCount==1){
     /*  print("ay: ");
       println(value);*/
-      value = value*(2.0/65535);
+      value = value*(acc_range/65535);
       dataY[currentPos]=value;
     //println(value);
     //println(serialCount);
@@ -541,7 +544,7 @@ void serialEvent(Serial p) {
     else if(serialCount==2){
     /*  print("az: ");
       println(value);*/
-      value = value*(2.0/65535);
+      value = value*(acc_range/65535);
       dataZ[currentPos]=value;
    // println(value);
     //println(serialCount);
@@ -557,7 +560,7 @@ void serialEvent(Serial p) {
     // println(value);
      /*print("gx: ");
      println(value);*/
-     value = value*(250.0/65535);
+     value = value*(gyro_range/65535);
      //println(value);
      dataGyroX[currentPos]=value;
     // println(value);
@@ -566,7 +569,7 @@ void serialEvent(Serial p) {
    else if(serialCount==4) {
    /*  print("gy: ");
     println(value);*/
-     value = value*(250.0/65535);
+     value = value*(gyro_range/65535);
      dataGyroY[currentPos]=value;
      //println(value);
      serialCount++;
@@ -574,7 +577,7 @@ void serialEvent(Serial p) {
    else if(serialCount==5){
     /* print("gz: ");
      println(value);*/
-     value = value*(250.0/65535);
+     value = value*(gyro_range/65535);
      dataGyroZ[currentPos]=value;
      //println(value);
      serialCount++;
