@@ -50,6 +50,10 @@ boolean DisplayGyroZ = true;
 
 float acc_range=4.0;
 float gyro_range=250.0;
+int point_nb=0;
+int sampling_rate=1000;//in hz
+int measurment_time=0; //in seconds
+int verbose_value=0;
 
 void setup() {
   background(200);
@@ -261,7 +265,7 @@ void ReadMode(boolean theFlag) {
      println(Serial.list());
      String portName = Serial.list()[4];
      myPort = new Serial(this, portName,38400);*/
-     Mode=2;
+     Mode=7;
      } 
    else{
      println("stop read mode");
@@ -507,6 +511,18 @@ void serialEvent(Serial p) {
       myPort.clear();          // clear the serial port buffer
       firstContact = true;     // you've had first contact from the microcontroller
       myPort.write('r');       // ask for more
+      //println("contact!");
+    } 
+    else  println("Something wrong");
+  }
+  //get the status of the memory
+   else if(firstContact==false && Mode==7){
+    println("contact0");
+    int inByte = myPort.read();
+    if (inByte == 'A') { 
+      myPort.clear();          // clear the serial port buffer
+      firstContact = true;     // you've had first contact from the microcontroller
+      myPort.write('t');       // ask for more
       println("contact!");
     } 
     else  println("Something wrong");
@@ -519,7 +535,7 @@ void serialEvent(Serial p) {
   if(message != null){
     value = float(message);
     if(value<=65535 && value>=-65535){
-    println(value);
+     if(verbose_value==1) println(value);
     //remplir les X
     if(serialCount==0){
    /* print("ax: ");
@@ -590,7 +606,7 @@ void serialEvent(Serial p) {
     }
     else endPos=currentPos;
     currentPos++;
-    
+    if(Mode==2) println((currentPos*100)/point_nb + "%");
     // println("+1");
      //myPort.write('A');
     }
@@ -599,6 +615,32 @@ void serialEvent(Serial p) {
  }
  
  }
+ //mode 7: get the status of the memory
+  else if(firstContact==true && Mode==7){
+  // get message till line break (ASCII > 13)
+  String message = myPort.readStringUntil(13);
+  float page_nbf=0;
+  int page_nb=0;
+ // println(message);
+  if(message != null){
+   page_nbf = float(message);
+    if( page_nbf>=0 &&  page_nbf<=4097)
+      {
+    println(message);
+    page_nbf = float(message);
+    //println(page_nb);
+    page_nb=int(page_nbf);
+    println(page_nb);
+    point_nb=(page_nb*264)/6;
+    println(point_nb);
+    measurment_time=point_nb/sampling_rate;
+    println(measurment_time + " seconds");
+     Mode=2;
+    myPort.write('r');
+      }
+   //
+    }    
+  }
  //////////////////////////////
    else if(firstContact==true && Mode==5){
   // get message till line break (ASCII > 13)
