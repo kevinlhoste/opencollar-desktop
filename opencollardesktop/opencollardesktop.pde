@@ -247,12 +247,12 @@ void setup() {
      .updateSize()
      ;
   bDownloadDC.moveTo(messageBox);   
-  /*bDownloadPC=controlP5.addButton("bDPC")
-     .setPosition(200,10)
+ /* bDownloadPC=controlP5.addButton("bDPC")
+     .setPosition(210,10)
      .setImages(loadImage("Download_PC_Button-01.png"),loadImage("Download_PC_Button-02.png"),loadImage("Download_PC_Button-03.png"))
      .updateSize()
      ; 
-  bDownloadPC.moveTo(messageBox);  */   
+  bDownloadPC.moveTo(messageBox);  */
  // bDownload.moveTo(messageBox);
   slDownload=controlP5.addSlider("sliderValue",0,100,50,150,300,20);
   slDownload.captionLabel().setVisible(false);
