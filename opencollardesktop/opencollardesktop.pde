@@ -10,7 +10,7 @@ import processing.serial.*;
 
 int Mode=0; //1: live// 2: read //3: data chargées
 
-Button bMessageBoxWarning1OK,bMessageBoxWarning1CANCEL,bMessageSaveOK,bMessageBoxError1OK,bMessageBoxOK,bDownload,b1,buttonLiveMode,buttonReadMode,buttonfwd1,buttonffwd10, buttonfffwd100, buttonrwd1, buttonrrwd10, buttonrrrwd100,buttonzoominx,buttonzoomoutx,buttonzoominy,buttonzoomouty;
+Button bMessageBoxWarning1OK,bMessageBoxWarning1CANCEL,bMessageSaveOK,bMessageBoxError1OK,bMessageBoxOK,bDownload,bDownloadDC,bDownloadPC,b1,buttonLiveMode,buttonReadMode,buttonfwd1,buttonffwd10, buttonfffwd100, buttonrwd1, buttonrrwd10, buttonrrrwd100,buttonzoominx,buttonzoomoutx,buttonzoominy,buttonzoomouty;
 Toggle toggleSaveToFile,toggleDrawFromFile,toggleAccX,toggleAccY,toggleAccZ,toggleGyroX,toggleGyroY,toggleGyroZ;
 Slider slDownload;
 Textlabel lMessageBoxError1,lMessageBoxSave1,lMessageBoxWarning1;
@@ -236,12 +236,24 @@ void setup() {
   messageBox.setBackgroundColor(color(200));
   messageBox.hideBar();   
   messageBox.hide();
-  bDownload=controlP5.addButton("bD")
+  /*bDownload=controlP5.addButton("bD")
      .setPosition(150,10)
      .setImages(loadImage("Download_Button-01.png"),loadImage("Download_Button-02.png"),loadImage("Download_Button-03.png"))
      .updateSize()
+     ;*/
+  bDownloadDC=controlP5.addButton("bDC")
+     .setPosition(150,10)
+     .setImages(loadImage("Download_ODC_Button-01.png"),loadImage("Download_ODC_Button-02.png"),loadImage("Download_ODC_Button-03.png"))
+     .updateSize()
      ;
-  bDownload.moveTo(messageBox);
+  bDownloadDC.moveTo(messageBox);   
+  /*bDownloadPC=controlP5.addButton("bDPC")
+     .setPosition(200,10)
+     .setImages(loadImage("Download_PC_Button-01.png"),loadImage("Download_PC_Button-02.png"),loadImage("Download_PC_Button-03.png"))
+     .updateSize()
+     ; 
+  bDownloadPC.moveTo(messageBox);  */   
+ // bDownload.moveTo(messageBox);
   slDownload=controlP5.addSlider("sliderValue",0,100,50,150,300,20);
   slDownload.captionLabel().setVisible(false);
   slDownload.setColorActive(NButton);
@@ -629,7 +641,7 @@ void ReadMode() {
     }*/
   
 }
-void bD(int theValue) {
+void bDC(int theValue) {
   if(Comselected) {
      println("read mode");
      myPort = new Serial(this, comList[Ss],comSpeed);
