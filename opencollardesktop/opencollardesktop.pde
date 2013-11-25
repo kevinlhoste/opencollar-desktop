@@ -10,10 +10,10 @@ import processing.serial.*;
 
 int Mode=0; //1: live// 2: read //3: data chargées
 
-Button bMessageSaveOK,bMessageBoxError1OK,bMessageBoxOK,bDownload,b1,buttonLiveMode,buttonReadMode,buttonfwd1,buttonffwd10, buttonfffwd100, buttonrwd1, buttonrrwd10, buttonrrrwd100,buttonzoominx,buttonzoomoutx,buttonzoominy,buttonzoomouty;
+Button bMessageBoxWarning1OK,bMessageBoxWarning1CANCEL,bMessageSaveOK,bMessageBoxError1OK,bMessageBoxOK,bDownload,b1,buttonLiveMode,buttonReadMode,buttonfwd1,buttonffwd10, buttonfffwd100, buttonrwd1, buttonrrwd10, buttonrrrwd100,buttonzoominx,buttonzoomoutx,buttonzoominy,buttonzoomouty;
 Toggle toggleSaveToFile,toggleDrawFromFile,toggleAccX,toggleAccY,toggleAccZ,toggleGyroX,toggleGyroY,toggleGyroZ;
 Slider slDownload;
-Textlabel lMessageBoxError1,lMessageBoxSave1;
+Textlabel lMessageBoxError1,lMessageBoxSave1,lMessageBoxWarning1;
 Textfield fileName1;
 String defaultFileName="data";
 String fileName="";
@@ -72,12 +72,14 @@ boolean DisplayGyroY = true;
 boolean DisplayGyroZ = true;
 boolean DisplayGraphAxes=false;
 boolean showMessageBoxError1=false;
+boolean showMessageBoxWarning1=false; //error unsaved data
 boolean showMessageBoxSave1=false;
+
 float acc_range=4.0;
 float gyro_range=250.0;
 int WindowH = 700 ;
 int WindowW = 1024 ;
-ControlGroup messageBox,messageBoxError1,messageBoxSave1;
+ControlGroup messageBox,messageBoxError1,messageBoxWarning1,messageBoxSave1;
 int showMessageBox=0;
 int point_nb=0;
 int sampling_rate=100;//in hz
@@ -318,6 +320,38 @@ void setup() {
   bMessageBoxError1OK.setColorForeground(NButton);
   bMessageBoxError1OK.getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER);
   bMessageBoxError1OK.moveTo(messageBoxError1); 
+  
+  //message box warning 1: unsaved changes 
+  messageBoxWarning1 = controlP5.addGroup("messageBoxWarning1",350,250,400);
+  messageBoxWarning1.setBackgroundHeight(200);
+  messageBoxWarning1.setBackgroundColor(color(200));
+  messageBoxWarning1.hideBar();   
+  messageBoxWarning1.hide(); 
+  lMessageBoxWarning1= controlP5.addTextlabel("label00")
+                    .setText("Warning : Unsaved data will be lost !")
+                    .setPosition(100,20)
+                    .setFont(createFont("impact", 20))
+                    ;
+  lMessageBoxWarning1.moveTo(messageBoxWarning1);                  
+  bMessageBoxWarning1OK=controlP5.addButton("bWarning1OK");
+  bMessageBoxWarning1OK.setCaptionLabel("OK");
+  bMessageBoxWarning1OK.setSize(100,30);
+  bMessageBoxWarning1OK.setPosition(100,150);
+  bMessageBoxWarning1OK.setColorActive(NButton);
+  bMessageBoxWarning1OK.setColorBackground(Shadow);
+  bMessageBoxWarning1OK.setColorForeground(NButton);
+  bMessageBoxWarning1OK.getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER);
+  bMessageBoxWarning1OK.moveTo(messageBoxWarning1);
+  //button cancel
+  bMessageBoxWarning1CANCEL=controlP5.addButton("bWarning1CANCEL");
+  bMessageBoxWarning1CANCEL.setCaptionLabel("CANCEL");
+  bMessageBoxWarning1CANCEL.setSize(100,30);
+  bMessageBoxWarning1CANCEL.setPosition(210,150);
+  bMessageBoxWarning1CANCEL.setColorActive(NButton);
+  bMessageBoxWarning1CANCEL.setColorBackground(Shadow);
+  bMessageBoxWarning1CANCEL.setColorForeground(NButton);
+  bMessageBoxWarning1CANCEL.getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER);
+  bMessageBoxWarning1CANCEL.moveTo(messageBoxWarning1);
 }
 
 void drawmenuBoxes()
@@ -678,6 +712,8 @@ void draw() {
   else messageBoxError1.hide();
   if(showMessageBoxSave1) messageBoxSave1.show();
   else messageBoxSave1.hide();
+  if(showMessageBoxWarning1) messageBoxWarning1.show();
+  else messageBoxWarning1.hide();
  //0 cf.setLocation(800, 400);
   //if(Mode==1) cf.hide();
   //else cf.show();
@@ -1171,6 +1207,9 @@ void OK(){
 }
 void bError1OK(){
 showMessageBoxError1=false;
+}
+void bWarning1CANCEL(){
+showMessageBoxWarning1=false;
 }
 // function buttonOK will be triggered when pressing
 // the OK button of the messageBox.
