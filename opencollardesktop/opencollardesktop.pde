@@ -15,6 +15,8 @@ Toggle toggleSaveToFile,toggleDrawFromFile,toggleAccX,toggleAccY,toggleAccZ,togg
 Slider slDownload;
 Textlabel lMessageBoxError1,lMessageBoxSave1,lMessageBoxWarning1;
 Textfield fileName1;
+Range range;
+
 String defaultFileName="data";
 String fileName="";
 PFont f;
@@ -364,6 +366,24 @@ void setup() {
   bMessageBoxWarning1CANCEL.setColorForeground(NButton);
   bMessageBoxWarning1CANCEL.getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER);
   bMessageBoxWarning1CANCEL.moveTo(messageBoxWarning1);
+  //range
+ range=controlP5.addRange("rangeController");
+ // range=controlP5.addRange("rangeController")
+             // disable broadcasting since setRange and setRangeValues will trigger an event
+     range    .setBroadcast(false) 
+             .setPosition(10,670)
+             .setSize(1000,20)
+             .setHandleSize(20)
+             .setRange(0,1024)
+             .setRangeValues(50,100)
+             .setHighValue(1024) 
+             .setLowValue(980) 
+             // after the initialization we turn broadcast back on again
+             .setBroadcast(true)
+             .setColorForeground(color(255,40))
+             .setColorBackground(color(255,40))  
+             .captionLabel().setVisible(false) //cacher le descriptif
+             ;
 }
 
 void drawmenuBoxes()
@@ -1034,7 +1054,16 @@ void serialEvent(Serial p) {
     if(Mode==2) {
     //println((currentPos*100)/point_nb + "%");
     slDownload.setValue((currentPos*100)/point_nb);  
-    if(currentPos>=point_nb)  bMessageBoxOK.setVisible(true);
+    if(currentPos>=point_nb){
+      bMessageBoxOK.setVisible(true);
+      range.setRange(0,point_nb);
+     // println(endPos);
+     /*  println(startPos);
+       println(currentPos);*/
+      range .setHighValue(currentPos); 
+      range .setLowValue(startPos); 
+      range.update();
+      }
     }
     // println("+1");
      //myPort.write('A');
@@ -1275,6 +1304,14 @@ void controlEvent(ControlEvent theEvent) {
     Comselected = true;
     //println("COM selected");
   }
+  else if(theEvent.isFrom("rangeController")) {
+    // min and max values are stored in an array.
+    // access this array with controller().arrayValue().
+    // min is at index 0, max is at index 1.
+    startPos= int(theEvent.getController().getArrayValue(0));
+    endPos = int(theEvent.getController().getArrayValue(1));
+    println("range update, done.");
+  }
 }
 // the dropdown part
 void customize(DropdownList ddl) {
@@ -1310,7 +1347,7 @@ void customize(DropdownList ddl) {
   {
     //println(i);
     //This is the line doing the actual adding of items, we use the current loop we are in to determin what place in the char array to access and what item number to add it as.
-    //ddl.addItem(comList[i],i);
+   // ddl.addItem(comList[i],i);
     String pn = shortifyPortName(Serial.list()[i], 13);
     if (pn.length() >0 )ddl.addItem(pn,i); 
    // println(comList[i]);
