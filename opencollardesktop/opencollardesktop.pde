@@ -1,6 +1,7 @@
 
 import controlP5.*;
 import processing.serial.*;
+import java.io.*;
 
 ControlP5 controlP5;
 AccelGyro accelgyro; 
@@ -19,7 +20,7 @@ setup()
 
     serial_handler_init();
     dropdown_setup();    
-    WarningMessageBox.warningBox_init(controlP5,color(200),color(0,0,0,180),color(0,70),font);
+    WarningMessageBox.warningBox_init(controlP5,color(130),color(0,0,0,180),color(0,70),font);
     accelgyro = new AccelGyro(controlP5);
 }
 

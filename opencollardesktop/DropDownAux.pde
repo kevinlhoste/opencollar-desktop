@@ -118,8 +118,9 @@ sampling_ddl(DropdownList ddl)
 
     ddl.addItem("10Hz",10);
     ddl.addItem("50Hz",50);
-    ddl.addItem("100Hz",100);
-    ddl.addItem("500Hz",500);
+    ddl.addItem("60Hz",60);
+    /*ddl.addItem("100Hz",100);*/
+    /*ddl.addItem("500Hz",500);*/
 }
 
 boolean ddlaux_eventHandler(String group_name, int value)
@@ -149,18 +150,18 @@ boolean ddlaux_eventHandler(String group_name, int value)
         }
         else if(group_name == "acce_list")
         {
-            myPort.write("1 " + value);
+            myPort.write("1 " + value + ' ');
             return true;
         }
         else if(group_name == "gyro_list")
         {
-            myPort.write("2 " + value);
+            myPort.write("2 " + value + ' ');
             return true;
         }
         else if(group_name == "sampling_list")
         {
             //accelgyro.set_timeScale(value);
-            myPort.write("3 " + value);
+            myPort.write("3 " + value + ' ');
             return true;
         }
     }

@@ -1,5 +1,8 @@
 static int SAMPLES = 30000;
 
+String
+    file_name;
+
 int
     C_RED = color(200,89,91),
     C_BLUE = color(81,162,198),
@@ -12,8 +15,11 @@ int
     NButton3 = color(0,0,0,1);
 
 boolean LiveModeState,
-        WriteModeState;
-    
+        WriteModeState,
+        write_to_file;
+
+PrintWriter fileOut;
+
 public class AccelGyro
 {
     boolean
@@ -23,6 +29,7 @@ public class AccelGyro
         set_gx,
         set_gy,
         set_gz;
+        
     private float[]
         ax,
         ay,
@@ -42,8 +49,8 @@ public class AccelGyro
     private int
         acc_VerticalOrigin,
         gyro_VerticalOrigin;
-        
-    private Button bLive, bWrite, bRead;
+    
+    private Button bLive, bWrite, bRead, bByteLive, bFile;
     
     public 
     AccelGyro(ControlP5 cP5){
@@ -74,8 +81,11 @@ public class AccelGyro
         bLive = cP5.addButton("LiveMode").setPosition(480,0).setSize(80,29);
         bWrite = cP5.addButton("WriteMode").setPosition(480+80,0).setSize(80,29);
         bRead = cP5.addButton("ReadMode").setPosition(480+80+80,0).setSize(80,29);
+        /*bByteLive = cP5.addButton("ByteMode").setPosition(480+80+80+80,0).setSize(80,29);*/
+        bFile = cP5.addButton("FileOut").setPosition(480+80+80+80+80,0).setSize(80,29);
         LiveModeState = false;
         WriteModeState = false;
+        write_to_file = false;
     
         cP5.addToggle("toggleV")
             .setPosition(5,33)
@@ -131,6 +141,40 @@ public class AccelGyro
             .setColorForeground(NButton2)
             .captionLabel().setVisible(false);
         
+        
+        Textlabel f_label;
+        Button f_button;
+  
+        f_box = controlP5.addGroup("FileNameBox",350,250,400);
+        f_box.setBackgroundHeight(200);
+        f_box.setBackgroundColor(color(130));
+        f_box.hideBar();
+        f_box.hide();
+        
+        filename = controlP5.addTextfield("input").setPosition(10,40)
+         .setPosition(100,70)
+         .setSize(200,25)
+         .setColorActive(255)
+         .setColorBackground(255)
+         .setColorCursor(255)
+         .setFont(createFont("impact",18))
+         .setFocus(true)
+         .setColor(255)
+         .setCaptionLabel(" ");
+        filename.moveTo(f_box);   
+        filename.hide();
+
+        f_label = controlP5.addTextlabel("fileLabel").setText("Type the filename without extensions").setPosition(80,20).setFont(createFont("impact",12));
+        f_label.moveTo(f_box);
+        f_button = controlP5.addButton("fileButton");
+        f_button.setCaptionLabel("OK");
+        f_button.setSize(100,30);
+        f_button.setPosition(150,150);
+        f_button.setColorActive(color(0,0,0,180));
+        f_button.setColorBackground(color(0,70));
+        f_button.setColorForeground(color(0,0,0,180));
+        f_button.getCaptionLabel().align(controlP5.CENTER, controlP5.CENTER);
+        f_button.moveTo(f_box);
     }
     public void
     set_ax(){ set_ax = true; }
@@ -373,7 +417,15 @@ void LiveMode(int value)
 {
     if(port_selected == true){
         if(LiveModeState == true) { myPort.write('q'); LiveModeState = false; }
-        else { myPort.write('l'); LiveModeState = true; accelgyro.clear_values();}
+        else { myPort.write('L'); LiveModeState = true; accelgyro.clear_values();}
+    }
+}
+
+void ByteMode(int value)
+{
+    if(port_selected == true){
+        if(LiveModeState == true) { myPort.write('q'); LiveModeState = false; }
+        else { myPort.write('L'); LiveModeState = true; accelgyro.clear_values();}
     }
 }
 
@@ -387,5 +439,40 @@ void WriteMode(int value)
 
 void ReadMode(int value)
 {
-    myPort.write('r');
+    myPort.write('R');
+}
+
+static ControlGroup f_box;
+static Textfield filename;
+
+void FileOut()
+{
+  file_name = "";
+
+  filename.show();
+  f_box.show();
+}
+
+void fileButton()
+{
+  println(filename.getText());
+  if(write_to_file)
+  {
+    fileOut.close();
+  }
+  try{
+    fileOut = new PrintWriter(filename.getText()+".csv", "UTF-8");
+  } catch(IOException e){
+    write_to_file = false;
+    filename.hide();
+    f_box.hide();
+    WarningMessageBox.show("failed to open file");
+    return;
+  }
+  filename.hide();
+  f_box.hide();
+  write_to_file = true;
+  myPort.write('i');
+  filename.hide();
+  f_box.hide();
 }
