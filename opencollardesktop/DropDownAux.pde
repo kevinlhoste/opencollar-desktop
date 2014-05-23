@@ -131,6 +131,7 @@ boolean ddlaux_eventHandler(String group_name, int value)
         {
             myPort = new Serial(this, comList[value], 38400);
             port_selected = true;
+            myPort.write("i");
         }
         catch(Exception ex)
         {

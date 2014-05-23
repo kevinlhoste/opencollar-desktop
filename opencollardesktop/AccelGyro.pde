@@ -1,7 +1,14 @@
-static int SAMPLES = 30000;
+static int SAMPLES = 300000;
 
 String
-    file_name;
+    file_name,
+    read_file_name;
+
+
+static ControlGroup f_box, read_box;
+static Textfield filename, readfilename;
+
+boolean slider_init = false;
 
 int
     C_RED = color(200,89,91),
@@ -18,7 +25,7 @@ boolean LiveModeState,
         WriteModeState,
         write_to_file;
 
-PrintWriter fileOut;
+PrintWriter fileOut, fileIn;
 
 public class AccelGyro
 {
@@ -50,10 +57,15 @@ public class AccelGyro
         acc_VerticalOrigin,
         gyro_VerticalOrigin;
     
-    private Button bLive, bWrite, bRead, bByteLive, bFile;
+    private Button bLive, bWrite, bRead, bFile, bReadFile;
+    
+    private Slider accelgyroSlider;
+    int slider_start = 0;
     
     public 
     AccelGyro(ControlP5 cP5){
+        Toggle aux;
+      
         ax = new float[SAMPLES];
         ay = new float[SAMPLES];
         az = new float[SAMPLES];
@@ -81,67 +93,32 @@ public class AccelGyro
         bLive = cP5.addButton("LiveMode").setPosition(480,0).setSize(80,29);
         bWrite = cP5.addButton("WriteMode").setPosition(480+80,0).setSize(80,29);
         bRead = cP5.addButton("ReadMode").setPosition(480+80+80,0).setSize(80,29);
-        /*bByteLive = cP5.addButton("ByteMode").setPosition(480+80+80+80,0).setSize(80,29);*/
+        bReadFile = cP5.addButton("ReadFile").setPosition(480+80+80+80,0).setSize(80,29);
         bFile = cP5.addButton("FileOut").setPosition(480+80+80+80+80,0).setSize(80,29);
         LiveModeState = false;
         WriteModeState = false;
         write_to_file = false;
     
-        cP5.addToggle("toggleV")
-            .setPosition(5,33)
-            .setSize(26,26)
-            .setState(true)
-            .setColorActive(NButton3)
-            .setColorBackground(NButton2)
-            .setColorForeground(NButton2)
-            .captionLabel().setVisible(false);
-       
-        cP5.addToggle("toggleR")
-            .setPosition(5+33,33)
-            .setSize(26,26)
-            .setState(true)
-            .setColorActive(NButton3)
-            .setColorBackground(NButton2)
-            .setColorForeground(NButton2)
-            .captionLabel().setVisible(false);
-            
-        cP5.addToggle("toggleB")
-            .setPosition(5+33+33,33)
-            .setSize(26,26)
-            .setState(true)
-            .setColorActive(NButton3)
-            .setColorBackground(NButton2)
-            .setColorForeground(NButton2)
-            .captionLabel().setVisible(false);
+        aux = cP5.addToggle("toggleV",true,5,33,26,26);
+        aux.setColorActive(NButton3).setColorBackground(NButton2).setColorForeground(NButton2).captionLabel().setVisible(false);
         
-        cP5.addToggle("toggleY")
-            .setPosition(5+33+33+33,33)
-            .setSize(26,26)
-            .setState(true)
-            .setColorActive(NButton3)
-            .setColorBackground(NButton2)
-            .setColorForeground(NButton2)
-            .captionLabel().setVisible(false);
+        aux = cP5.addToggle("toggleR",true,5+33,33,26,26);
+        aux.setColorActive(NButton3).setColorBackground(NButton2).setColorForeground(NButton2).captionLabel().setVisible(false);
+     
+        aux = cP5.addToggle("toggleB",true,5+33+33,33,26,26);
+        aux.setColorActive(NButton3).setColorBackground(NButton2).setColorForeground(NButton2).captionLabel().setVisible(false);
         
-        cP5.addToggle("toggleVI")
-            .setPosition(5+33+33+33+33,33)
-            .setSize(26,26)
-            .setState(true)
-            .setColorActive(NButton3)
-            .setColorBackground(NButton2)
-            .setColorForeground(NButton2)
-            .captionLabel().setVisible(false);
-            
-        cP5.addToggle("toggleC")
-            .setPosition(5+33+33+33+33+33,33)
-            .setSize(26,26)
-            .setState(true)
-            .setColorActive(NButton3)
-            .setColorBackground(NButton2)
-            .setColorForeground(NButton2)
-            .captionLabel().setVisible(false);
+        aux = cP5.addToggle("toggleY",true,5+33+33+33,33,26,26);
+        aux.setColorActive(NButton3).setColorBackground(NButton2).setColorForeground(NButton2).captionLabel().setVisible(false);
+        
+        aux = cP5.addToggle("toggleVI",true,5+33+33+33+33,33,26,26);
+        aux.setColorActive(NButton3).setColorBackground(NButton2).setColorForeground(NButton2).captionLabel().setVisible(false);
         
         
+        aux = cP5.addToggle("toggleC",true,5+33+33+33+33+33,33,26,26);
+        aux.setColorActive(NButton3).setColorBackground(NButton2).setColorForeground(NButton2).captionLabel().setVisible(false);
+             
+
         Textlabel f_label;
         Button f_button;
   
@@ -175,6 +152,47 @@ public class AccelGyro
         f_button.setColorForeground(color(0,0,0,180));
         f_button.getCaptionLabel().align(controlP5.CENTER, controlP5.CENTER);
         f_button.moveTo(f_box);
+        
+        read_box = controlP5.addGroup("ReadFileBox",350,250,400);
+        read_box.setBackgroundHeight(200);
+        read_box.setBackgroundColor(color(130));
+        read_box.hideBar();
+        read_box.hide();
+        
+        readfilename = controlP5.addTextfield("input2").setPosition(10,40)
+         .setPosition(100,70)
+         .setSize(200,25)
+         .setColorActive(255)
+         .setColorBackground(255)
+         .setColorCursor(255)
+         .setFont(createFont("impact",18))
+         .setFocus(true)
+         .setColor(255)
+         .setCaptionLabel(" ");
+        readfilename.moveTo(read_box);   
+        readfilename.hide();
+
+        f_label = controlP5.addTextlabel("readLabel").setText("Type the filename without extensions").setPosition(80,20).setFont(createFont("impact",12));
+        f_label.moveTo(read_box);
+        f_button = controlP5.addButton("readfileButton");
+        f_button.setCaptionLabel("OK");
+        f_button.setSize(100,30);
+        f_button.setPosition(150,150);
+        f_button.setColorActive(color(0,0,0,180));
+        f_button.setColorBackground(color(0,70));
+        f_button.setColorForeground(color(0,0,0,180));
+        f_button.getCaptionLabel().align(controlP5.CENTER, controlP5.CENTER);
+        f_button.moveTo(read_box);
+        
+        //8+76 +300+8 280
+        accelgyroSlider = controlP5.addSlider("agSlider")
+                 .setPosition(8,8+76+280+4)
+                 .setSize(1024-8-11,20)
+                 .setRange(0,SAMPLES)
+                 .setValue(0);
+        accelgyroSlider.captionLabel().setVisible(false);
+        
+        slider_init = true;
     }
     public void
     set_ax(){ set_ax = true; }
@@ -227,15 +245,19 @@ public class AccelGyro
                float gY,
                float gZ)
     {
-        int pos = (start + total) % screen_size;
+        int pos = (start + total) % SAMPLES;
         ax[pos] = aX;
         ay[pos] = aY;
         az[pos] = aZ;
         gx[pos] = gX;
         gy[pos] = gY;
         gz[pos] = gZ;
-        if(total < screen_size) total++;
-        else start = (start+1)%screen_size;
+        if(total < SAMPLES) total++;
+        else start = (start+1)%SAMPLES;
+        if(total > screen_size)
+          slider_start = (total - screen_size);
+        else
+          slider_start = 0;
     }
     
     public void
@@ -280,28 +302,28 @@ public class AccelGyro
     draw_line(float[] values, int myColor, float multX, float multY, int vOrigin)
     {
         float x0, y0, x1, y1;
-        for(int i = 0; i < (total-1); i++)
+        for(int i = 0; i < (total-1) && i < screen_size; i++)
         {
             x0 = i*multX + 10;
-            y0 = vOrigin-(values[(start+i)%screen_size])*multY;
+            y0 = vOrigin-(values[(start+i+slider_start)%total])*multY;
             x1 = (i+1)*multX + 10;
-            y1 = vOrigin-(values[(start+i+1)%screen_size])*multY;
+            y1 = vOrigin-(values[(start+i+1+slider_start)%total])*multY;
             
             strokeWeight(1);
             stroke(myColor);
             line(x0,y0,x1,y1);
         }
     }
-    
+     
     private void 
     draw_graphBoxes() {
         // ecran blanc 
         fill(255);
-        rect(8 ,8+66 , 1024-8-11 ,300 );
+        rect(8 ,8+76 , 1024-8-11 ,280 );
         // ecran blanc 2  
         noStroke();
         fill(255);
-        rect(8 ,8+66+8+300 , 1024-8-11 ,300 );
+        rect(8 ,8+76+8+300 , 1024-8-11 ,280 );
     }
     
     private void draw_graphLegends()
@@ -442,15 +464,20 @@ void ReadMode(int value)
     myPort.write('R');
 }
 
-static ControlGroup f_box;
-static Textfield filename;
-
 void FileOut()
 {
   file_name = "";
 
   filename.show();
   f_box.show();
+}
+
+void ReadFile()
+{
+  file_name = "";
+
+  readfilename.show();
+  read_box.show();
 }
 
 void fileButton()
@@ -475,4 +502,44 @@ void fileButton()
   myPort.write('i');
   filename.hide();
   f_box.hide();
+}
+
+void readfileButton()
+{
+  BufferedReader reader;
+  String line;
+  String[] parts;
+  println(readfilename.getText());
+
+  try{
+    reader = new BufferedReader(new FileReader(readfilename.getText()+".csv"));
+  } catch(IOException e){
+    write_to_file = false;
+    readfilename.hide();
+    read_box.hide();
+    WarningMessageBox.show("failed to open file");
+    return;
+  }
+  readfilename.hide();
+  read_box.hide();
+  
+  /*read the file */
+  try{
+    while((line = reader.readLine()) != null)
+    {
+      if(Character.isDigit(line.charAt(0))){
+        parts = line.split(";");
+        accelgyro.add_values(Integer.parseInt(parts[0]),Integer.parseInt(parts[1]),Integer.parseInt(parts[2]),Integer.parseInt(parts[3]),Integer.parseInt(parts[4]),Integer.parseInt(parts[5]));
+      }
+    }
+  } catch(IOException e) {
+  }
+}
+
+void agSlider(float position)
+{
+  if(slider_init){
+    accelgyro.slider_start = (int)((position/SAMPLES)*(accelgyro.total));
+    if(accelgyro.slider_start > accelgyro.total) accelgyro.slider_start = accelgyro.total;
+  }
 }

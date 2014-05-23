@@ -91,9 +91,53 @@ byte_packet_handler()
 void
 info_packet_handler()
 {
-  if(!write_to_file) return;
   int hz;
   
+  
+  
+  switch(serial_buffer[4])
+  {
+    case '0':
+      acce_list.captionLabel().set("2G");
+      break;
+    case '1':
+      acce_list.captionLabel().set("4G");
+      break;
+    case '2':
+      acce_list.captionLabel().set("8G");
+      break;
+    case '3':
+      acce_list.captionLabel().set("16G");
+      break;
+  }
+  
+  switch(serial_buffer[6])
+  {
+    case '0':
+      gyro_list.captionLabel().set("250d/s");
+      break;
+    case '1':
+      gyro_list.captionLabel().set("500d/s");
+      break;
+    case '2':
+      gyro_list.captionLabel().set("1000d/s");
+      break;
+    case '3':
+      gyro_list.captionLabel().set("2000d/s");
+      break;
+  }
+  
+  buf_i = 8;
+  hz = get_int_from_buffer();
+  sampling_list.captionLabel().set(hz + "Hz");
+  
+  if(!write_to_file) return;
+  INFO_packet_handler();
+}
+
+void
+INFO_packet_handler()
+{
   fileOut.print("i;");
   
   println("device ID = "+serial_buffer[2]);
@@ -114,7 +158,7 @@ info_packet_handler()
       break;
   }
   
-    switch(serial_buffer[6])
+  switch(serial_buffer[6])
   {
     case '0':
       fileOut.print("250;");
@@ -129,8 +173,9 @@ info_packet_handler()
       fileOut.print("2000;");
       break;
   }
-  
-  fileOut.println(get_int_from_byte_buffer(8) + ";");
+  //int test = get_int_from_byte_buffer(8);
+  buf_i = 8;
+  fileOut.println(get_int_from_buffer() + ";");
   fileOut.println("ax;ay;az;gx;gy;gz;");
   fileOut.flush();
 }
@@ -172,7 +217,9 @@ serialEvent(Serial p)
             case 'i':
                 info_packet_handler();
                 break;
-                
+            case 'I':
+                INFO_packet_handler();
+                break;
         }
         //println(serial_buffer[0]);
         size = 0;
